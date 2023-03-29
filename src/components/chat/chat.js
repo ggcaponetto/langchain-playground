@@ -17,22 +17,14 @@ export const run = async () => {
         new Document({ pageContent: "Dogs are the best animals of the world according to people living in Zug."}),
         new Document({ pageContent: "Zug is a swiss town that is 20km from Zürich."})
     ];
-    /*const loader = new UnstructuredLoader(
-        "",
-    );
-    const unstructuredDocs = await loader.load();*/
     docs = [
         ...docs
     ]
-
     const model = new ChatOpenAI({ temperature: 0 });
-
     const chain = loadQAMapReduceChain(model);
-
     const response = await chain.call({
         input_documents: docs,
         question: "What are the best animals according to people switzerland?"
-        // question: "What is swissenergyplanning?"
     });
 
     console.log(response);
