@@ -13,9 +13,8 @@ import {UnstructuredLoader} from "langchain/document_loaders";
 
 export const run = async () => {
     let docs = [
-        new Document({ pageContent: "Dogs are the best animals of the world according to swiss people."}),
-        new Document({ pageContent: "Dogs are the best animals of the world according to people living in Zug."}),
-        new Document({ pageContent: "Zug is a swiss town that is 20km from Zürich."})
+        new Document({ pageContent: "Ich bin Aurora un ich spiele gerne Beachsoccer"}),
+        new Document({ pageContent: "Ich bin Giuseppe und ich spiele gerne Fussball. Fussball zu spielen ist mein grösstes Hobby."}),
     ];
     docs = [
         ...docs
@@ -24,7 +23,7 @@ export const run = async () => {
     const chain = loadQAMapReduceChain(model);
     const response = await chain.call({
         input_documents: docs,
-        question: "What are the best animals according to people switzerland?"
+        question: "Sag mir den Namen von zwei Personen die gerne Fussball spielen."
     });
 
     console.log(response);
