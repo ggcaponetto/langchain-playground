@@ -6,7 +6,7 @@ import path from "path";
 import url from "url";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-
+import openAI from "../src/components/chat/chat.js";
 describe('hnswlib', function () {
     function isEmpty(path) {
         return fs.readdirSync(path).length === 0;
@@ -50,8 +50,8 @@ describe('hnswlib', function () {
             let splittedDocs = await langchainUtil.split({
                 text: loadedDocs[0].pageContent,
                 recursiveSplitterOptions: {
-                    chunkSize: 200,
-                    chunkOverlap: 20,
+                    chunkSize: 500,
+                    chunkOverlap: 50,
                 }
             })
             assert.equal(!!splittedDocs, true);
@@ -69,12 +69,18 @@ describe('hnswlib', function () {
 
             let loadedVectorStore = await hnswlib.loadStore()
             assert.equal(!!loadedVectorStore, true);
-            let res = await hnswlib.queryStore({
+            let relevantDocs = await hnswlib.queryStore({
                 vectorStore: loadedVectorStore,
-                query: "who is dracula?",
-                k: 10
+                query: "dog begin howl",
+                k: 3
             })
-            assert.equal(res.length, 10);
+
+            let openAIResponse = await openAI.queryOpenAI({
+                docs: relevantDocs,
+                question: "Was it day or night when one dog after another began to howl?"
+            })
+            console.log(openAIResponse);
+            assert.equal(!!openAIResponse, true);
         });
     });
 });

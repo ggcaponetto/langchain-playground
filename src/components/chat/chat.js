@@ -10,24 +10,18 @@ import { BufferMemory } from "langchain/memory";
 import { Document } from "langchain/document";
 import {UnstructuredLoader} from "langchain/document_loaders";
 
-
-export const run = async () => {
-    let docs = [
-        new Document({ pageContent: "Ich bin Aurora un ich spiele gerne Beachsoccer"}),
-        new Document({ pageContent: "Ich bin Giuseppe und ich spiele gerne Fussball. Fussball zu spielen ist mein grösstes Hobby."}),
-    ];
-    docs = [
-        ...docs
-    ]
+async function queryOpenAI(options = {
+    docs: [],
+    question: ""
+}){
     const model = new ChatOpenAI({ temperature: 0 });
     const chain = loadQAMapReduceChain(model);
     const response = await chain.call({
-        input_documents: docs,
-        question: "Sag mir den Namen von zwei Personen die gerne Fussball spielen."
+        input_documents: options.docs,
+        question: options.question
     });
-
-    console.log(response);
-};
+    return response;
+}
 export default {
-    run
+    queryOpenAI
 }
