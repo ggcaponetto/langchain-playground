@@ -40,8 +40,8 @@ describe('hnswlib', function () {
             assert.equal(!!res, true);
         });
     });
-    describe('split a big text into documents', function () {
-        it('should split a large amount of text into an array of documents, embed and query', async function () {
+    describe('should split a large amount of text into an array of documents, embed and query', function () {
+        it('should split a large amount of text into an array of documents, embed and query OpenAI', async function () {
             this.timeout(1000*60*5)
             let loadedDocs = await langchainUtil.loadText({
                 path: path.resolve(`${__dirname}/text/SomeLongText.txt`)
@@ -122,6 +122,19 @@ describe('hnswlib', function () {
             });
             console.log("This operation costed " + dollarCost.toFixed(8) + "$.")
             assert.notEqual(digest, null);
+        });
+    });
+    describe('#queryLocalVectorStore()', function () {
+        it('query a serialized vector store', async function () {
+            this.timeout(1000*60*5)
+            let response = await hnswlib.queryLocalVectorStore({
+                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/e20160ddc0c0825260990c5ba252da89575c3caacf75b9a4fdbef11cc2c64f81`),
+                vectorStoreQuery: "giuseppe",
+                openAIQuestion: "What's Giuseppe's job title?",
+                k: 3
+            });
+            console.log("Got response form OpenAI", response)
+            assert.notEqual(response, null);
         });
     });
 });

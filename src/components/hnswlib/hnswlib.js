@@ -9,6 +9,7 @@ import fs from "fs";
 import langchainUtil from "./langchain-util.js";
 import assert from "assert";
 import * as crypto from "crypto";
+import openAI from "../chat/chat.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -142,10 +143,33 @@ async function embed({
     };
 }
 
+async function queryLocalVectorStore(options = {
+    path: null,
+    vectorStoreQuery: "",
+    openAIQuestion: "",
+    k: 3
+}){
+    let loadedVectorStore = await loadStore({
+        path: options.path
+    })
+    let relevantDocs = await queryStore({
+        vectorStore: loadedVectorStore,
+        query: options.vectorStoreQuery,
+        k: options.k
+    })
+
+    let openAIResponse = await openAI.queryOpenAI({
+        docs: relevantDocs,
+        question: options.openAIQuestion
+    })
+    return openAIResponse;
+}
+
 export default {
     createStore,
     loadStore,
     clearStore,
     queryStore,
-    embed
+    embed,
+    queryLocalVectorStore
 }

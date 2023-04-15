@@ -3,6 +3,7 @@ dotenv.config()
 import express from "express"
 import cors from "cors"
 import langchainUtil from "../../hnswlib/langchain-util.js";
+import hnswlib from "../../hnswlib/hnswlib.js";
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -22,8 +23,15 @@ app.post('/cost-estimation', async (req, res) => {
 app.post('/embed', async (req, res) => {
     res.set("Content-Type", "application/json");
     let text = req.body.text;
+    let {
+        digest, dollarCost
+    } = await hnswlib.embed({
+        text
+    });
     res.send(JSON.stringify({
-        message: "got it"
+        message: `Embedded text: ${text.substring(0, 20)}...`,
+        digest,
+        dollarCost
     }))
 })
 
