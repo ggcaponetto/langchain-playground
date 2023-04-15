@@ -1,7 +1,11 @@
 import assert from "assert";
 import hnswlib from "../src/components/hnswlib/hnswlib.js";
+import langchainUtil from "../src/components/hnswlib/langchain-util.js";
 import fs from "fs";
 import path from "path";
+import url from "url";
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 describe('hnswlib', function () {
     function isEmpty(path) {
@@ -29,9 +33,48 @@ describe('hnswlib', function () {
             let loadedVectorStore = await hnswlib.loadStore()
             assert.equal(!!loadedVectorStore, true);
             let res = await hnswlib.queryStore({
-                vectorStore: loadedVectorStore
+                vectorStore: loadedVectorStore,
+                query: "hello world",
+                k: 1
             })
+            assert.equal(!!res, true);
+        });
+    });
+    describe('split a big text into documents', function () {
+        it('should split a large amount of text into an array of documents', async function () {
+            this.timeout(1000*60*5)
+            let loadedDocs = await langchainUtil.loadText({
+                path: path.resolve(`${__dirname}/text/SomeLongText.txt`)
+            });
+
+            let splittedDocs = await langchainUtil.split({
+                text: loadedDocs[0].pageContent,
+                recursiveSplitterOptions: {
+                    chunkSize: 200,
+                    chunkOverlap: 20,
+                }
+            })
+            assert.equal(!!splittedDocs, true);
+
+            // clear the store
+            let options = await hnswlib.clearStore()
+            const directory = path.resolve(options.path);
+            assert.equal(isEmpty(directory), true);
+
+            // create the store
+            let createStoreOptions = await hnswlib.createStore({
+                textArray: splittedDocs.map(splittedDoc => splittedDoc.pageContent),
+                metadataArray: splittedDocs.map(splittedDoc => splittedDoc.metadata)
+            })
+
+            let loadedVectorStore = await hnswlib.loadStore()
             assert.equal(!!loadedVectorStore, true);
+            let res = await hnswlib.queryStore({
+                vectorStore: loadedVectorStore,
+                query: "who is dracula?",
+                k: 10
+            })
+            assert.equal(res.length, 10);
         });
     });
 });

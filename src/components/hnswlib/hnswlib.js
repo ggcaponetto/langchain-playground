@@ -87,12 +87,14 @@ async function clearStore(options = {
 }
 
 async function queryStore(options = {
-    vectorStore: null
+    vectorStore: null,
+    query: "",
+    k: 10
 }) {
     if(options.vectorStore === null){
         throw new Error("Please provide a vector store to perform the query.");
     }
-    const result = await options.vectorStore.similaritySearch("hello world", 1);
+    const result = await options.vectorStore.similaritySearch(options.query, options.k);
     return result;
 }
 
