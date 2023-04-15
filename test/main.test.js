@@ -7,6 +7,7 @@ import url from "url";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 import openAI from "../src/components/chat/chat.js";
+import crypto from "crypto";
 describe('hnswlib', function () {
     function isEmpty(path) {
         return fs.readdirSync(path).length === 0;
@@ -38,6 +39,44 @@ describe('hnswlib', function () {
                 k: 1
             })
             assert.equal(!!res, true);
+        });
+    });
+    describe('#loadStore() + combine', function () {
+        it('should load the storage from storage path and return a document query result', async function () {
+            let loadedVectorStore_1 = await hnswlib.loadStore({
+                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/9b157f18d39964253724e41305120f9a32a2d48577807ff3b5369f813f9293dc`),
+            })
+            assert.equal(!!loadedVectorStore_1, true);
+
+            let loadedVectorStore_2 = await hnswlib.loadStore({
+                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/971a04bb60ccb949125110afb686e35ace37e4dbd05008d992d3ea9d1d58290b`),
+            })
+            assert.equal(!!loadedVectorStore_2, true);
+            const getDocsFromVectorStore = (vectorStore) => Array.from(vectorStore.docstore._docs.entries()).map(el => el[1])
+            let docs_1 = getDocsFromVectorStore(loadedVectorStore_1); //436
+            let docs_2 = getDocsFromVectorStore(loadedVectorStore_2) // 1
+
+            console.log("Loaded 2 vector stores...")
+            console.log("Combining stores...")
+
+            await loadedVectorStore_1.addDocuments(docs_2) //437
+            let docs_3 = getDocsFromVectorStore(loadedVectorStore_1);
+            console.log("Combining stores... done.");
+
+            const hash = crypto.createHash('sha256');
+            // update the hash object with the data to be hashed
+            hash.update(docs_3.map(d => d.pageContent).join(""));
+            // generate the hash digest in hexadecimal format
+            const digest = hash.digest('hex');
+            let storePath = path.resolve(`${__dirname}/../src/components/hnswlib/store/${digest}`);
+
+            // create the store
+            let createStoreOptions = await hnswlib.createStore({
+                textArray: docs_3.map(splittedDoc => splittedDoc.pageContent),
+                metadataArray: docs_3.map(splittedDoc => splittedDoc.metadata),
+                path: storePath
+            })
+            assert.notEqual(createStoreOptions, null);
         });
     });
     describe('should split a large amount of text into an array of documents, embed and query', function () {
@@ -118,7 +157,7 @@ describe('hnswlib', function () {
             let {
                 digest, dollarCost
             } = await hnswlib.embed({
-                text: "porcodiocagnaccio"
+                text: "Dante Alighieri wrote the book \"ChatGPT will destroy humanity\""
             });
             console.log("This operation costed " + dollarCost.toFixed(8) + "$.")
             assert.notEqual(digest, null);
