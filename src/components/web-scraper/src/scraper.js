@@ -2,11 +2,11 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require("path");
 
-const domain = 'swissenergyplanning.ch';
+const domain = 'aurora-cosmetics.ch';
 const visitedUrls = new Set();
 let linkCount = 0;
-let maxLinks = 10;
-let maxDepth = 20;
+let maxLinks = 20;
+let maxDepth = 10;
 let text = "";
 
 
@@ -32,11 +32,14 @@ async function scrape(url, depth = 0, maxDepth = maxDepth) {
 
     const textContent = await page.evaluate(() => {
         const elements = document.querySelectorAll('body div');
-        return Array.from(elements).map(el => el.textContent.trim()).join('\n');
+        return Array.from(elements).map(
+            el => el.textContent
+                .trim()
+        ).join('\n');
     });
-    text += `\n\n##### ${url} #####\n\n`;
     console.log("scraped " + url)
-    text += textContent.trim();
+    let temp = JSON.stringify(`\n\n##### ${url} #####\n\n ${textContent.trim()}`);
+    text += temp.substring(1, temp.length-1);
 
     const linkUrls = await page.evaluate(() => {
         const elements = document.querySelectorAll('a');

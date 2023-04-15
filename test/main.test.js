@@ -124,14 +124,30 @@ describe('hnswlib', function () {
             assert.notEqual(digest, null);
         });
     });
+    describe('embeds a text from a file', function () {
+        it('embeds a text from a file using hashes as keys', async function () {
+            this.timeout(1000*60*5)
+            let loadedDocs = await langchainUtil.loadText({
+                path: path.resolve(`${__dirname}/text/Website.txt`)
+            });
+            let {
+                digest, dollarCost
+            } = await hnswlib.embed({
+                text:  loadedDocs[0].pageContent
+            });
+            console.log("This operation costed " + dollarCost.toFixed(8) + "$.")
+            assert.notEqual(digest, null);
+        });
+    });
     describe('#queryLocalVectorStore()', function () {
         it('query a serialized vector store', async function () {
             this.timeout(1000*60*5)
             let response = await hnswlib.queryLocalVectorStore({
-                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/e20160ddc0c0825260990c5ba252da89575c3caacf75b9a4fdbef11cc2c64f81`),
-                vectorStoreQuery: "giuseppe",
-                openAIQuestion: "What's Giuseppe's job title?",
-                k: 3
+                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/9b157f18d39964253724e41305120f9a32a2d48577807ff3b5369f813f9293dc`),
+                vectorStoreQuery: "kyra",
+                // openAIQuestion: "Bei Wem kann man buchen bei aurora cosmetics? Bitte antworte auf Deutsch.",
+                openAIQuestion: "Was sind die Öffnungszeiten bei aurora cosmetics am Dienstag? Bitte antworte auf Deutsch.",
+                k: 10
             });
             console.log("Got response form OpenAI", response)
             assert.notEqual(response, null);
