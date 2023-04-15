@@ -1,79 +1,66 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require("path");
 
-// Step 2
-async function extractLinks(url) {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.goto(url, {
-        waitUntil: "domcontentloaded"
-    });
-    const links = await page.evaluate(() => {
-        const linkElements = Array.from(document.querySelectorAll('a'));
-        return linkElements.map(link => link.href);
-    });
-    await browser.close();
-    // console.log(`extracted ${links.length} links`)
-    return links;
-}
+const domain = 'swissenergyplanning.ch';
+const visitedUrls = new Set();
+let linkCount = 0;
+let maxLinks = 10;
+let maxDepth = 20;
+let text = "";
 
-// Step 4
-async function crawlSite(url, options) {
-    const isAtMaxDepth = options.currentDepth === options.maxDepth;
-    if(isAtMaxDepth){
-        options.results = [
-            ...new Set([
-                ...options.results,
-                url
-            ])
-        ]
-        console.log(`Finished crawling on depth ${options.currentDepth}/${options.maxDepth}.`, options);
-        return new Promise((res) => {res(options)})
-    } else {
-        let urls = await extractLinks(url, options);
-        // console.log(`Got ${urls.length} urls on depth ${depth}.`, urls);
-        let filteredUrls = [...new Set(urls.filter(
-            myUrl => myUrl.includes(url) && myUrl.includes("#") === false && url !== myUrl
-        ))].splice(0, options.maxLinksOnUrl)
-        console.log(`Got ${filteredUrls.length} filtered urls from ${url} on depth ${options.currentDepth}`, filteredUrls);
-        const promises = [];
-        for(const newUrl of filteredUrls){
-            if(
-                options.urlAccumulator.includes(newUrl) === false
-            ){
-                let tempOption = {
-                    ...options,
-                    currentDepth: options.currentDepth + 1,
-                    urlAccumulator: [...new Set([
-                        ...options.urlAccumulator,
-                        newUrl
-                    ])],
-                    results: [
-                        ...new Set([
-                            ...options.results,
-                            newUrl
-                        ])
-                    ]
-                }
-                const tempPromise = crawlSite(newUrl, tempOption).then(r => r);
-                promises.push(tempPromise);
-            }
-        }
-        let results = []
-        for (const promise of promises) {
-            results.push(await Promise.resolve(promise))
-        }
-        return results;
+
+async function writeFileAsync(filename, data) {
+    try {
+        await fs.promises.writeFile(filename, data);
+        console.log('The file has been saved!');
+    } catch (error) {
+        console.error(`Error saving file: ${error}`);
     }
 }
 
-// Step 5
-(async ()=>{
-    let crawlingResult = await crawlSite('https://www.squarespace.com/', {
-        maxLinksOnUrl: 5,
-        maxDepth: 3,
-        currentDepth: 0,
-        urlAccumulator: [],
-        results: []
+async function scrape(url, depth = 0, maxDepth = maxDepth) {
+    if (linkCount >= maxLinks || depth >= maxDepth) {
+        return;
+    }
+    visitedUrls.add(url);
+    const browser = await puppeteer.launch({
+        headless: false
     });
-    console.log(`Crawling result`, crawlingResult)
+    const page = await browser.newPage();
+    await page.goto(url);
+
+    const textContent = await page.evaluate(() => {
+        const elements = document.querySelectorAll('body div');
+        return Array.from(elements).map(el => el.textContent.trim()).join('\n');
+    });
+    text += `\n\n##### ${url} #####\n\n`;
+    console.log("scraped " + url)
+    text += textContent.trim();
+
+    const linkUrls = await page.evaluate(() => {
+        const elements = document.querySelectorAll('a');
+        return Array.from(elements).map(el => el.href);
+    });
+
+    for (const linkUrl of linkUrls) {
+        if (visitedUrls.has(linkUrl)) {
+            continue;
+        }
+        if (linkUrl.startsWith('https') && linkUrl.includes(domain)) {
+            linkCount++;
+            await scrape(linkUrl, depth + 1, maxDepth);
+        }
+        if (linkCount >= maxLinks) {
+            break;
+        }
+    }
+
+    await browser.close();
+}
+
+(async ()=>{
+    await scrape(`https://${domain}`, 0, maxDepth);
+    console.log(`Scraped the text of ${linkCount} links.`);
+    await writeFileAsync(path.resolve(`${__dirname}/../store/${domain}.txt`), text);
 })()
