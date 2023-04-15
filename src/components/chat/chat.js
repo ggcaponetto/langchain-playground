@@ -1,5 +1,5 @@
 import {ConversationChain, LLMChain, loadQAMapReduceChain, StuffDocumentsChain} from "langchain/chains";
-import { ChatOpenAI } from "langchain/chat_models";
+import { ChatOpenAI } from "langchain/chat_models/openai";
 import {
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -8,7 +8,6 @@ import {
 } from "langchain/prompts";
 import { BufferMemory } from "langchain/memory";
 import { Document } from "langchain/document";
-import {UnstructuredLoader} from "langchain/document_loaders";
 
 async function queryOpenAI(options = {
     docs: [],

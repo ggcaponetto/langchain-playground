@@ -100,4 +100,16 @@ describe('hnswlib', function () {
             assert.equal(!!openAIResponse, true);
         });
     });
+    describe('get rough embedding cost', function () {
+        it('get rough embedding cost in dollars', async function () {
+            this.timeout(1000*60*5)
+            let loadedDocs = await langchainUtil.loadText({
+                path: path.resolve(`${__dirname}/text/Bible.txt`)
+            });
+
+            let wholeText = loadedDocs.map(doc => doc.pageContent).join("");
+            let dollarCost = langchainUtil.getRoughEmbeddingCost(wholeText);
+            assert.notEqual(dollarCost, null);
+        });
+    });
 });

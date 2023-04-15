@@ -7,6 +7,7 @@ import path from "path"
 import * as url from 'url';
 import fs from "fs";
 import { TextLoader } from "langchain/document_loaders/fs/text";
+import axios from "axios"
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -29,7 +30,16 @@ async function loadText(options = {
     return docs;
 }
 
+function getRoughEmbeddingCost(text){
+    // based on https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
+    const charsPerPage = 1800;
+    let pages = text.length / charsPerPage;
+    let dollarCost = pages/3000;
+    return dollarCost;
+}
+
 export default {
     split,
-    loadText
+    loadText,
+    getRoughEmbeddingCost
 }
