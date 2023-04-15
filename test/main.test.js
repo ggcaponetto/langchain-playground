@@ -41,7 +41,7 @@ describe('hnswlib', function () {
         });
     });
     describe('split a big text into documents', function () {
-        it('should split a large amount of text into an array of documents', async function () {
+        it('should split a large amount of text into an array of documents, embed and query', async function () {
             this.timeout(1000*60*5)
             let loadedDocs = await langchainUtil.loadText({
                 path: path.resolve(`${__dirname}/text/SomeLongText.txt`)
@@ -67,6 +67,23 @@ describe('hnswlib', function () {
                 metadataArray: splittedDocs.map(splittedDoc => splittedDoc.metadata)
             })
 
+            let loadedVectorStore = await hnswlib.loadStore()
+            assert.equal(!!loadedVectorStore, true);
+            let relevantDocs = await hnswlib.queryStore({
+                vectorStore: loadedVectorStore,
+                query: "dog begin howl",
+                k: 3
+            })
+
+            let openAIResponse = await openAI.queryOpenAI({
+                docs: relevantDocs,
+                question: "Was it day or night when one dog after another began to howl?"
+            })
+            console.log(openAIResponse);
+            assert.equal(!!openAIResponse, true);
+        });
+        it('should query a pre-existing vector store for docs and query open ai with k nearest docs', async function () {
+            this.timeout(1000*60*5)
             let loadedVectorStore = await hnswlib.loadStore()
             assert.equal(!!loadedVectorStore, true);
             let relevantDocs = await hnswlib.queryStore({
