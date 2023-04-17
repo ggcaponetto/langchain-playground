@@ -55,10 +55,10 @@ async function scrape(url, depth = 0, maxDepthLevel = maxDepthLevel) {
             break;
         }
         if (linkUrl.startsWith('http') && linkUrl.includes(`${domain}`)) {
+            await browser.close();
             await scrape(linkUrl, depth + 1, maxDepthLevel);
         }
     }
-
     await browser.close();
 }
 
