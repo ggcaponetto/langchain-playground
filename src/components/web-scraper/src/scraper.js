@@ -2,11 +2,11 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require("path");
 
-const domain = 'aurora-cosmetics.ch';
+const domain = 'localhost';
 const visitedUrls = new Set();
 let linkCount = 0;
-let maxLinks = 20;
-let maxDepth = 10;
+let maxLinks = 100;
+let maxDepthLevel = 100; // top level is 0
 let text = "";
 
 
@@ -19,11 +19,7 @@ async function writeFileAsync(filename, data) {
     }
 }
 
-async function scrape(url, depth = 0, maxDepth = maxDepth) {
-    if (linkCount >= maxLinks || depth >= maxDepth) {
-        return;
-    }
-    visitedUrls.add(url);
+async function scrape(url, depth = 0, maxDepthLevel = maxDepthLevel) {
     const browser = await puppeteer.launch({
         headless: false
     });
@@ -37,9 +33,11 @@ async function scrape(url, depth = 0, maxDepth = maxDepth) {
                 .trim()
         ).join('\n');
     });
-    console.log("scraped " + url)
+    console.log(`scraped url nr ${linkCount} (${url}) at level ${depth}`)
     let temp = JSON.stringify(`\n\n##### ${url} #####\n\n ${textContent.trim()}`);
     text += temp.substring(1, temp.length-1);
+    visitedUrls.add(url);
+    linkCount++;
 
     const linkUrls = await page.evaluate(() => {
         const elements = document.querySelectorAll('a');
@@ -50,12 +48,14 @@ async function scrape(url, depth = 0, maxDepth = maxDepth) {
         if (visitedUrls.has(linkUrl)) {
             continue;
         }
-        if (linkUrl.startsWith('https') && linkUrl.includes(domain)) {
-            linkCount++;
-            await scrape(linkUrl, depth + 1, maxDepth);
+        if (depth >= maxDepthLevel) {
+            break;
         }
         if (linkCount >= maxLinks) {
             break;
+        }
+        if (linkUrl.startsWith('http') && linkUrl.includes(`${domain}`)) {
+            await scrape(linkUrl, depth + 1, maxDepthLevel);
         }
     }
 
@@ -63,7 +63,7 @@ async function scrape(url, depth = 0, maxDepth = maxDepth) {
 }
 
 (async ()=>{
-    await scrape(`https://${domain}`, 0, maxDepth);
+    await scrape(`http://${domain}`, 0, maxDepthLevel);
     console.log(`Scraped the text of ${linkCount} links.`);
-    await writeFileAsync(path.resolve(`${__dirname}/../store/${domain}.txt`), text);
+    await writeFileAsync(path.resolve(`${__dirname}/../store/${"MySite"}.txt`), text);
 })()

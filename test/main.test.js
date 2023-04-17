@@ -143,11 +143,12 @@ describe('hnswlib', function () {
         it('get rough embedding cost in dollars', async function () {
             this.timeout(1000*60*5)
             let loadedDocs = await langchainUtil.loadText({
-                path: path.resolve(`${__dirname}/text/Bible.txt`)
+                path: path.resolve(`${__dirname}/text/Website.txt`)
             });
 
             let wholeText = loadedDocs.map(doc => doc.pageContent).join("");
             let dollarCost = langchainUtil.getRoughEmbeddingCost(wholeText);
+            console.log("cost: " + dollarCost)
             assert.notEqual(dollarCost, null);
         });
     });
@@ -187,6 +188,19 @@ describe('hnswlib', function () {
                 // openAIQuestion: "Bei Wem kann man buchen bei aurora cosmetics? Bitte antworte auf Deutsch.",
                 openAIQuestion: "Was sind die Öffnungszeiten bei aurora cosmetics am Dienstag? Bitte antworte auf Deutsch.",
                 k: 10
+            });
+            console.log("Got response form OpenAI", response)
+            assert.notEqual(response, null);
+        });
+    });
+    describe('#queryLocalVectorStore() in Binningen', function () {
+        it('query a serialized vector store of Binningen', async function () {
+            this.timeout(1000*60*5)
+            let response = await hnswlib.queryLocalVectorStore({
+                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/71909beddcae33f9ce2344c9c40f5d16c31950ee88f88a4f1c46c4d04ced6f21`),
+                vectorStoreQuery: "öffentlich Raum",
+                openAIQuestion: "Was plant die Gemeinde Binningen für den öffentlichen Raum? Bitte antworte auf Deutsch.",
+                k: 5
             });
             console.log("Got response form OpenAI", response)
             assert.notEqual(response, null);
