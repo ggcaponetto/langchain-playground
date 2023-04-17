@@ -1,12 +1,16 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require("path");
+const url = require("url");
 
-const domain = 'localhost';
+const startingUrl = 'https://www.tutti.ch/de/vi/zuerich/oberstrass/baby-kind/kleider-schuhe/olivgruene-adidas-sport-freizeit-schuhe-gr-us-7/54972612';
+const domain = url.parse(startingUrl).hostname;
+console.log("scanning domain", domain)
+
 const visitedUrls = new Set();
 let linkCount = 0;
-let maxLinks = 100;
-let maxDepthLevel = 100; // top level is 0
+let maxLinks = 10;
+let maxDepthLevel = 1; // top level is 0
 let text = "";
 
 
@@ -63,7 +67,7 @@ async function scrape(url, depth = 0, maxDepthLevel = maxDepthLevel) {
 }
 
 (async ()=>{
-    await scrape(`http://${domain}`, 0, maxDepthLevel);
+    await scrape(startingUrl, 0, maxDepthLevel);
     console.log(`Scraped the text of ${linkCount} links.`);
     await writeFileAsync(path.resolve(`${__dirname}/../store/${"MySite"}.txt`), text);
 })()
