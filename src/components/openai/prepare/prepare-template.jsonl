@@ -1,0 +1,2 @@
+{"prompt": "give me a script to make a cardano nft", "completion": "cardano-cli --nft make.nft"}
+{"prompt": "give me a script to make a cardano nft with an image providing a URL", "completion": "cardano-cli --nft make.nft --image https://example.com/image.png"}
