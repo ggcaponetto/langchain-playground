@@ -1,2 +1,5 @@
-{"prompt":"give me a script to make a cardano nft ->","completion":"cardano-cli --nft make.nft"}
-{"prompt":"give me a script to make a cardano nft with an image providing a URL ->","completion":"cardano-cli --nft make.nft --image https:\/\/example.com\/image.png"}
+{"prompt":"give me a javascript snippet to make a cardano nft ->","completion":" function makeCNFT(){return 'cardano-cli nft make'} END"}
+{"prompt":"i wanna have javascript code to make a cardano nft ->","completion":" function makeCNFT(){return 'cardano-cli nft make'} END"}
+{"prompt":"can you give me javascript code to make a cardano nft ->","completion":" function makeCNFT(){return 'cardano-cli nft make'} END"}
+{"prompt":"how can i make cardano nft in js ->","completion":" function makeCNFT(){return 'cardano-cli nft make'} END"}
+{"prompt":"how can i make CNFTs in js ->","completion":" function makeCNFT(){return 'cardano-cli nft make'} END"}

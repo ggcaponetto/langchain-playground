@@ -15,11 +15,11 @@ openai tools fine_tunes.prepare_data -f prepare/prepare-template.jsonl
 ```
 
 ```
-openai api fine_tunes.create -t prepare/prepare-template_prepared.jsonl -m ada
+openai api fine_tunes.create -t prepare/prepare-template_prepared.jsonl -m davinci
 
-openai api fine_tunes.follow -i ft-twwSTLIZFdrWy7HHVR6z3k81
+openai api fine_tunes.follow -i ft-E16rkQvwVEe7KWI3b7EcEsbe
 
-openai api fine_tunes.get -i ft-twwSTLIZFdrWy7HHVR6z3k81
+openai api fine_tunes.get -i ft-E16rkQvwVEe7KWI3b7EcEsbe
 ```
 
 ```
@@ -33,10 +33,14 @@ curl https://api.openai.com/v1/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -d '{
-    "prompt": "give me a script to make a cardano nft ->",
+    "prompt": "can you give me javascript code to make a cardano nft",
     "max_tokens": 50,
-    "model": "ada:ft-personal-2023-04-18-13-10-17"
+    "temperature": 0,
+    "model": "davinci:ft-personal-2023-04-18-15-16-00"
   }'
+```
+```
+
 ```
 
 ## Pricing
