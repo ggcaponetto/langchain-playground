@@ -197,13 +197,14 @@ describe('hnswlib', function () {
         it('query a serialized vector store of Binningen', async function () {
             this.timeout(1000*60*5)
             let response = await hnswlib.queryLocalVectorStore({
-                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/71909beddcae33f9ce2344c9c40f5d16c31950ee88f88a4f1c46c4d04ced6f21`),
-                vectorStoreQuery: "öffentlich Raum",
-                openAIQuestion: "Was plant die Gemeinde Binningen für den öffentlichen Raum? Bitte antworte auf Deutsch.",
+                path: path.resolve(`${__dirname}/../src/components/hnswlib/store/e3e9081b185c7d38a1147aa862182ce9fcee74f53a94ed614e8fee6912c2ffdc`),
+                vectorStoreQuery: "Öffnungszeiten",
+                openAIQuestion: "Hat die Gemeinde oensingen bestimmte Öffnungszeiten? Bitte antworte auf Deutsch.",
                 k: 5
             });
             console.log("Got response form OpenAI", response)
             assert.notEqual(response, null);
         });
     });
+
 });
