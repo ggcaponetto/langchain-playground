@@ -78,7 +78,7 @@ async function scrape(url, text, options) {
         const page = await browser.newPage();
         await page.goto(url);
 
-        const isPDF = url.toLowerCase().endsWith("pdf")
+        const isPDF = url.toLowerCase().includes(".pdf")
         let textContent = "";
         if(isPDF){
             let res = await download(
@@ -117,6 +117,7 @@ async function scrape(url, text, options) {
             if (
                 linkUrl.startsWith('http')
                 && linkUrl.includes(`${domain}`)
+                && (linkUrl.toLowerCase().includes(`.pdf`))
             ) {
                 await browser.close();
                 await scrape(linkUrl, text, {

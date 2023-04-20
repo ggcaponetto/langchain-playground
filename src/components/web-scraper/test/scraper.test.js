@@ -10,13 +10,13 @@ describe('scrape', function () {
     }
     describe('scrape recursive', async function () {
         it('scrape recursive', async function () {
-            this.timeout(1000 * 60)
+            this.timeout(1000 * 60 * 20)
             let text = await scraper.scrapeRecursive(
-                "http://127.0.0.1:8080",
+                "https://www.binningen.ch/de/dienstleistungen/versorgung-umwelt/energie/energiestrategie.html/735",
                 "",
                 {
                     depth: 1,
-                    maxLinks: 15,
+                    maxLinks: 100,
                     maxDepthLevel: 3,
                     isHeadless: false,
                     visitedUrls: new Set()
