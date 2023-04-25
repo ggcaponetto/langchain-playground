@@ -105,7 +105,7 @@ async function queryStore(options = {
 }
 
 async function embed({
-                         text
+                         text, storeName
                      }){
     let dollarCost = langchainUtil.getRoughEmbeddingCost(text);
     if(dollarCost > 1){
@@ -125,7 +125,7 @@ async function embed({
     const digest = hash.digest('hex');
 
     // clear the store
-    let storePath = path.resolve(`${__dirname}/store/${digest}`);
+    let storePath = path.resolve(`${__dirname}/store/${storeName}`);
     let options = await clearStore({
         path: storePath
     })
@@ -147,7 +147,8 @@ async function queryLocalVectorStore(options = {
     path: null,
     vectorStoreQuery: "",
     openAIQuestion: "",
-    k: 3
+    k: 3,
+    openAIOptions: { temperature: 0 }
 }){
     let loadedVectorStore = await loadStore({
         path: options.path
@@ -160,9 +161,13 @@ async function queryLocalVectorStore(options = {
 
     let openAIResponse = await openAI.queryOpenAI({
         docs: relevantDocs,
-        question: options.openAIQuestion
+        question: options.openAIQuestion,
+        openAIOptions: options.openAIOptions
     })
-    return openAIResponse;
+    return {
+        openAIResponse,
+        relevantDocs
+    };
 }
 
 export default {

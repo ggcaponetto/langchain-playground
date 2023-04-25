@@ -30,7 +30,7 @@ app.post('/embed', async (req, res) => {
     let {
         digest, dollarCost
     } = await hnswlib.embed({
-        text
+        text, storeName: "mystore"
     });
     res.send(JSON.stringify({
         message: `Embedded text: ${text.substring(0, 20)}...`,
