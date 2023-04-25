@@ -21,7 +21,6 @@ async function writeFileAsync(filename, data) {
 async function loadUnstructured(links) {
     const loader = new UnstructuredLoader(...links);
     const docs = await loader.load();
-    console.log({ docs });
     return docs;
 }
 
@@ -120,7 +119,7 @@ async function scrape(url, text, options) {
                 && (linkUrl.toLowerCase().includes(`.pdf`))
             ) {
                 await browser.close();
-                await scrape(linkUrl, text, {
+                text = await scrape(linkUrl, text, {
                     ...options,
                     depth: levelDepth
                 });

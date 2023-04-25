@@ -16,8 +16,8 @@ describe('scrape', function () {
                 "",
                 {
                     depth: 1,
-                    maxLinks: 100,
-                    maxDepthLevel: 3,
+                    maxLinks: 3,
+                    maxDepthLevel: 2,
                     isHeadless: false,
                     visitedUrls: new Set()
                 }

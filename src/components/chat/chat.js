@@ -11,9 +11,12 @@ import { Document } from "langchain/document";
 
 async function queryOpenAI(options = {
     docs: [],
-    question: ""
+    question: "",
+    openAIOptions: {
+        temperature: 0
+    }
 }){
-    const model = new ChatOpenAI({ temperature: 0 });
+    const model = new ChatOpenAI(options.openAIOptions);
     const chain = loadQAMapReduceChain(model);
     const response = await chain.call({
         input_documents: options.docs,
