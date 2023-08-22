@@ -65,4 +65,51 @@ describe('hnswlib', function () {
         console.log(JSON.stringify(response.openAIResponse))
         assert.notEqual(response, null);
     });
+    it("scans a website and performs a chatGPT query on it (incl. PDF's)", async function (){
+        let url = "https://www.binningen.ch/de/dienstleistungen/versorgung-umwelt/energie/energiestrategie.html/735";
+        let questionVS = "Was für eine Energiestrategie hat die gemeinde?";
+        let questionChatGPT = "Hat die Gemeinde Binningen eine Energiestrategie? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein mit einem boolean value ja/nein. Eine kurze Erklärung soll im attribut 'summary' sein.";
+        this.timeout(1000 * 60 * 20)
+        let text = await scraper.scrapeRecursive(
+            url,
+            "",
+            {
+                depth: 1,
+                maxLinks: 5,
+                maxDepthLevel: 2,
+                isHeadless: false,
+                visitedUrls: new Set()
+            }
+        )
+        assert.equal(!!text, true);
+        let loadedDocs = await langchainUtil.loadText({
+            path: path.resolve(`${__dirname}/text/Website.txt`)
+        });
+
+        let wholeText = loadedDocs.map(doc => doc.pageContent).join("");
+        let dollarCost = langchainUtil.getRoughEmbeddingCost(wholeText);
+        console.log("cost prediction: " + dollarCost)
+        assert.notEqual(dollarCost, null);
+        let loadedDocsFromVectorStore = await langchainUtil.loadText({
+            path: path.resolve(`${__dirname}/text/Website.txt`)
+        });
+        let {
+            digest, dollarCost: cost
+        } = await hnswlib.embed({
+            text:  loadedDocsFromVectorStore[0].pageContent, storeName: "Website"
+        });
+        console.log("This operation costed " + cost.toFixed(8) + "$.")
+        assert.notEqual(digest, null);
+        let response = await hnswlib.queryLocalVectorStore({
+            path: path.resolve(`${__dirname}/../src/components/hnswlib/store/Website`),
+            vectorStoreQuery: questionVS,
+            openAIQuestion: questionChatGPT,
+            k: 5,
+            openAIOptions: { temperature: 0 }
+        });
+        console.log("Got response form OpenAI", response.openAIResponse);
+        console.log(JSON.stringify(response.openAIResponse));
+        console.log(`Antwort: ${JSON.parse(response?.openAIResponse?.text)?.summary}`);
+        assert.notEqual(response, null);
+    })
 });
