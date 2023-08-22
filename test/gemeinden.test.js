@@ -123,4 +123,11 @@ describe('hnswlib', function () {
         this.timeout(1000 * 60 * 20);
         await run(url, questionVS, questionChatGPT);
     })
+    it("scans the Münchenstein website and performs a chatGPT query on it (incl. PDF's)", async function (){
+        let url = "https://www.muenchenstein.ch/laufendeprojekte/3532";
+        let questionVS = "Energie Strategie";
+        let questionChatGPT = "Hat die Gemeinde Münchenstein eine Energiestrategie? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein mit einem boolean value ja/nein. Eine kurze Erklärung soll im attribut 'summary' sein.";
+        this.timeout(1000 * 60 * 20);
+        await run(url, questionVS, questionChatGPT);
+    })
 });
