@@ -28,7 +28,6 @@ describe('hnswlib', function () {
         )
         assert.equal(!!text, true);
     });
-
     it('get rough embedding cost in dollars', async function () {
         this.timeout(1000*60*5)
         let loadedDocs = await langchainUtil.loadText({

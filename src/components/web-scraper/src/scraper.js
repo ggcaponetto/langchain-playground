@@ -128,11 +128,11 @@ async function scrape(url, text, options) {
         await browser.close();
         return text;
     } catch (e){
-        console.warn("had an error scrapring the url " + url)
         try {
+            console.warn("had an error scrapring the url " + url, e)
             await browser.close();
         } catch (e){
-            console.warn("had an error closing the browser on url " + url)
+            console.warn("had an error closing the browser on url " + url, e)
         }
     }
 }
