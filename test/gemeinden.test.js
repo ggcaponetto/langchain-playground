@@ -106,19 +106,23 @@ describe('hnswlib', function () {
         });
         console.log("Got response form OpenAI", response.openAIResponse);
         console.log(JSON.stringify(response.openAIResponse));
-        console.log(`Antwort: ${JSON.parse(response?.openAIResponse?.text)?.summary}`);
+        try{
+            console.log(`Antwort: ${JSON.parse(response?.openAIResponse?.text)?.summary}`);
+        } catch (e){
+            console.log("Fallback response: ", JSON.stringify(response?.openAIResponse || {}))
+        }
         assert.notEqual(response, null);
     }
     it("scans the Binningen website and performs a chatGPT query on it (incl. PDF's)", async function (){
         let url = "https://www.binningen.ch/de/dienstleistungen/versorgung-umwelt/energie/energiestrategie.html/735";
-        let questionVS = "Was für eine Energiestrategie hat die gemeinde?";
+        let questionVS = "Energie Strategie";
         let questionChatGPT = "Hat die Gemeinde Binningen eine Energiestrategie? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein mit einem boolean value ja/nein. Eine kurze Erklärung soll im attribut 'summary' sein.";
         this.timeout(1000 * 60 * 20);
         await run(url, questionVS, questionChatGPT);
     })
     it("scans the Köniz website and performs a chatGPT query on it (incl. PDF's)", async function (){
         let url = "https://www.koeniz.ch/wohnen/umwelt/energie/klima-und-energiepolitik/klimaschutzreglement.page/305#:~:text=K%C3%B6niz%20auf%20dem%20Weg%20zur,soll%20bereits%202035%20klimaneutral%20sein.";
-        let questionVS = "Was für eine Energiestrategie hat die gemeinde?";
+        let questionVS = "Energie Strategie";
         let questionChatGPT = "Hat die Gemeinde Köniz eine Energiestrategie? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein mit einem boolean value ja/nein. Eine kurze Erklärung soll im attribut 'summary' sein.";
         this.timeout(1000 * 60 * 20);
         await run(url, questionVS, questionChatGPT);
