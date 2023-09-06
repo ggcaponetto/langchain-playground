@@ -72,7 +72,7 @@ describe('hnswlib', function () {
             "",
             {
                 depth: 1,
-                maxLinks: 5,
+                maxLinks: 15,
                 maxDepthLevel: 2,
                 isHeadless: false,
                 visitedUrls: new Set()
@@ -101,7 +101,7 @@ describe('hnswlib', function () {
             path: path.resolve(`${__dirname}/../src/components/hnswlib/store/Website`),
             vectorStoreQuery: questionVS,
             openAIQuestion: questionChatGPT,
-            k: 5,
+            k: 20,
             openAIOptions: { temperature: 0 }
         });
         console.log("Got response form OpenAI", response.openAIResponse);
@@ -116,7 +116,7 @@ describe('hnswlib', function () {
     it("scans the Binningen website and performs a chatGPT query on it (incl. PDF's)", async function (){
         let url = "https://www.binningen.ch/de/dienstleistungen/versorgung-umwelt/energie/energiestrategie.html/735";
         let questionVS = "Energie Strategie";
-        let questionChatGPT = "Hat die Gemeinde Binningen eine Energiestrategie? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein mit einem boolean value ja/nein. Eine kurze Erklärung soll im attribut 'summary' sein.";
+        let questionChatGPT = "Welche massnahmen führen bei dieser Gemeinde zu mehr nachhaltigkeit? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein und mindestens 150 worte beinhalten in form einer auflistung. Eine kurze Erklärung soll im attribut 'summary' sein.";
         this.timeout(1000 * 60 * 20);
         await run(url, questionVS, questionChatGPT);
     })
@@ -131,6 +131,13 @@ describe('hnswlib', function () {
         let url = "https://www.muenchenstein.ch/laufendeprojekte/3532";
         let questionVS = "Energie Strategie";
         let questionChatGPT = "Hat die Gemeinde Münchenstein eine Energiestrategie? Bitte antworte auf Deutsch. Die Antwort soll im JSON format sein mit einem boolean value ja/nein. Eine kurze Erklärung soll im attribut 'summary' sein.";
+        this.timeout(1000 * 60 * 20);
+        await run(url, questionVS, questionChatGPT);
+    })
+    it("scans the geoimpact.ch website and performs a chatGPT query on it (incl. PDF's)", async function (){
+        let url = "https://www.geoimpact.ch/team";
+        let questionVS = "Wie heissen die Mitarbeiter der geoimpact AG?";
+        let questionChatGPT = "Wie heissen die Mitarbeiter der geoimpact AG? Zähle sie auf.";
         this.timeout(1000 * 60 * 20);
         await run(url, questionVS, questionChatGPT);
     })

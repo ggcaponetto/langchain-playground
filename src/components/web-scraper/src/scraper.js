@@ -93,10 +93,26 @@ async function scrape(url, text, options) {
             textContent = docs.map(d => d.pageContent).join("\n");
         } else {
             textContent = await page.evaluate(() => {
-                const elements = document.querySelectorAll('body div');
-                return Array.from(elements).map(
+                function findLeafNodes(node, leafNodes) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        if (node.children.length === 0) {
+                            leafNodes.push(node);
+                        } else {
+                            for (let i = 0; i < node.children.length; i++) {
+                                findLeafNodes(node.children[i], leafNodes);
+                            }
+                        }
+                    }
+                }
+
+                const leafNodes = [];
+                findLeafNodes(document.body, leafNodes);
+
+// Now, leafNodes array contains all the leaf nodes in the DOM
+                console.log(leafNodes);
+                return Array.from(leafNodes).map(
                     el => el.textContent
-                        .trim()
+                        .trim() + " "
                 ).join('\n');
             });
         }
